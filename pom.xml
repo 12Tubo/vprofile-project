@@ -18,8 +18,10 @@
         <jstl.version>1.2</jstl.version>
         <junit.version>4.10</junit.version>
         <logback.version>1.1.3</logback.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <!-- Use release to ensure cross-compilation and correct stdlib -->
+    <maven.compiler.release>21</maven.compiler.release>
     </properties>
 
     <dependencies>
@@ -177,6 +179,40 @@
                         <contextPath>/</contextPath>
                     </webApp>
                 </configuration>
+            </plugin>
+            <!-- Ensure compilation uses Java 21 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <!-- prefer release for proper stdlib resolution -->
+                    <release>${maven.compiler.release}</release>
+                </configuration>
+            </plugin>
+
+            <!-- Enforce JDK 21 at build time to avoid accidental builds with older JDKs -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>enforce-java</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[21,)</version>
+                                    <message>Build requires Java 21 or later (set JAVA_HOME to a Java 21 JDK).</message>
+                                </requireJavaVersion>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 		<!-- CODE COVERAGE -->
  		    <plugin>
